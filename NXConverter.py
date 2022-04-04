@@ -91,12 +91,13 @@ def ttl_to_networkx(g_nx, ttlpath):
       value, id, layer, output = None, None, None, None
       # 2022/1/11 add End Man
       member = []
+      output = []
       for s1, p1, o1 in g_ttl.triples((s, None, None)):
         if(p1 == pd3.member):
           member.append(o1)
-      # 2022/1/11 Mod Start Man
+      # 2022/04/01 Mod Start Man
         if(p1 == pd3.output):
-          output = o1
+          output.append(o1)
 
       """
       # 2022/1/12 Mod Start Man
@@ -115,12 +116,12 @@ def ttl_to_networkx(g_nx, ttlpath):
         g_nx.nodes[s]['layer'] = layer
       # 2022/1/12 Mod End Man
       """
-
-      for i in range(len(member)):
-        g_nx.add_edge(output, member[i])
-        g_nx.edges[output, member[i]]['arcType'] = 'member'
-        g_nx.edges[output, member[i]]['layer'] = 'layer'
-      # 2022/1/11 Mod End Man
+      for node in output:
+        for i in range(len(member)):
+          g_nx.add_edge(node, member[i])
+          g_nx.edges[node, member[i]]['arcType'] = 'member'
+          g_nx.edges[node, member[i]]['layer'] = 'layer'
+      # 2022/04/01 Mod End Man
 
     if(o == pd3.Flow):
       # 2022/1/11 add Start Man
