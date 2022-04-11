@@ -26,6 +26,10 @@ def ttl_to_networkx(g_nx, ttlpath):
           description = str(o1)
         elif(p1 == DCTERMS.identifier):
           identifier = str(o1)
+        elif(p1 == pd3.use):
+          g_nx.add_edge(s, o1)
+        elif(p1 == pd3.useBy):
+          g_nx.add_edge(s, o1)
       g_nx.add_node(s)
       g_nx.nodes[s]['creator'] = creator
       g_nx.nodes[s]['title'] = title
