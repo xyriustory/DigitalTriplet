@@ -11,6 +11,13 @@ from IPython.display import set_matplotlib_formats
 
 
 def ttl_to_networkx(g_nx, ttlpath):
+    """ ネットワークグラフ変換処理
+
+    Args:
+        g_nx: ネットワークスグラフ(有向グラウ、無向グラフを指定)
+        ttlpath: 変換するttlファイルパス
+
+    """
     pd3 = Namespace('http://DigitalTriplet.net/2021/08/ontology#')
     g_ttl = Graph()
     g_ttl.parse(ttlpath)
