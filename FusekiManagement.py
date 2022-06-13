@@ -100,7 +100,7 @@ def get_graph_ttlfile(graph, ttl_file):
     """
     get_ttlfile_data(query_ttl_file, ttl_file)
 
-def fuseki_update(query):
+def update(query):
     """ fusekiにあるデータを更新 (削除、更新)
 
     Args:
@@ -125,7 +125,7 @@ def fuseki_update(query):
     # 削除失敗
     return False
 
-def fuseki_insert(graph_name, insert_data):
+def insert(graph_name, insert_data):
     """ Fusekiにデータを追加
 
     Args:
@@ -159,7 +159,7 @@ def fuseki_insert(graph_name, insert_data):
 
     return False
 
-def fuseki_export(win):
+def ttlfile_export(win):
     """ Fusekiから単一グラフデータをエクスポート
 
     Args:
@@ -185,7 +185,7 @@ def fuseki_export(win):
 
         messagebox.showinfo("確認", "エクスポートしました！", parent=win)
 
-def fuseki_export_all(win):
+def ttlfile_export_all(win):
     """ Fusekiから全データをエクスポート
 
     Args:
