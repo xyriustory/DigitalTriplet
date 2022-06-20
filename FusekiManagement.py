@@ -21,7 +21,7 @@ class FusekiManagement:
         """
         self.fuseki_url = fuseki_url
         self.dataset = dataset
-        self.query_endpoint_url = '/'.join((fuseki_url, dataset, 'query'))
+        self.query_endpoint_url = '/'.join((fuseki_url, dataset, 'sparql'))
         self.update_endpoint_url = '/'.join((fuseki_url, dataset, 'update'))
         
     def get_fuseki_data_json(self, query):
