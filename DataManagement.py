@@ -695,7 +695,7 @@ class DataManagement:
             SELECT ?s ?id
             WHERE {
                 graph """ + graph + """ {
-                ?s pd3:id ?id
+                ?s pd3:id ?id.
                 FILTER(?id = """ + '"' + node_id + '"' + """)
                 }
             }
@@ -725,7 +725,7 @@ class DataManagement:
             SELECT ?p ?o
             WHERE {
                 graph """ + graph_name + """ {
-                """ + subject + """ ?p ?o
+                """ + subject + """ ?p ?o.
                 }
             }
         """

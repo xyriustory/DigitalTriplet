@@ -51,7 +51,7 @@ def insert_member_new(graph_name, current_item, node_id, member_graph, \
         WHERE {
             graph """ + member_graph + """ {
             ?node ?p pd3:Action;
-                    pd3:layer ?layer
+                    pd3:layer ?layer.
             filter(regex(str(?node),""" + '"' + member_uri + '"' + """)) 
             FILTER NOT EXISTS {?node pd3:attribution ?parent}
             }
@@ -72,7 +72,7 @@ def insert_member_new(graph_name, current_item, node_id, member_graph, \
         WHERE {
             graph """ + member_graph + """ {
             ?node ?p pd3:Object;
-                    pd3:layer ?layer
+                    pd3:layer ?layer.
             filter(regex(str(?node),""" + '"' + member_uri + '"' + """)) 
             FILTER NOT EXISTS {?node pd3:attribution ?parent}
             }
@@ -248,7 +248,7 @@ def delete_member(graph_name, ori_uri, node_uri, node_name, node_id, node_list, 
         WITH """ + graph_name + """
         DELETE { ?s ?p ?o }
         WHERE { ?s ?p ?o ; 
-                pd3:id """ + '"' + flow_id + '"' + """ 
+                pd3:id """ + '"' + flow_id + '"' + """.
                 FILTER(regex(str(?s),""" + '"' + node_uri + '"' + """))}
     """
 
@@ -258,7 +258,7 @@ def delete_member(graph_name, ori_uri, node_uri, node_name, node_id, node_list, 
         WITH """ + graph_name + """
         DELETE { ?s pd3:expansion """ + "<" + con_subject + ">" + """ }
         WHERE { ?s ?p ?o ; 
-                pd3:id """ + '"' + node_id + '"' + """ 
+                pd3:id """ + '"' + node_id + '"' + """. 
                 FILTER(regex(str(?s),""" + '"' + node_uri + '"' + """))}
     """
 
@@ -272,7 +272,7 @@ def delete_member(graph_name, ori_uri, node_uri, node_name, node_id, node_list, 
                 WITH """ + graph_name + """
                 DELETE { ?s pd3:contraction """ + delete_con_data + """ }
                 WHERE { ?s ?p ?o ; 
-                        pd3:id """ + '"' + con_id + '"' + """ 
+                        pd3:id """ + '"' + con_id + '"' + """. 
                         FILTER(regex(str(?s),""" + '"' + node_uri + '"' + """))}
             """
 
@@ -281,7 +281,7 @@ def delete_member(graph_name, ori_uri, node_uri, node_name, node_id, node_list, 
                 WITH """ + graph_name + """
                 DELETE { ?s pd3:output """ + delete_con_data + """ }
                 WHERE { ?s ?p ?o ; 
-                        pd3:id """ + '"' + con_id + '"' + """ 
+                        pd3:id """ + '"' + con_id + '"' + """. 
                         FILTER(regex(str(?s),""" + '"' + node_uri + '"' + """))}
             """
             if fuseki.update(query_del_contraction) and \
@@ -298,7 +298,7 @@ def delete_member(graph_name, ori_uri, node_uri, node_name, node_id, node_list, 
                 WITH """ + graph_name + """
                 DELETE { ?s ?p ?o }
                 WHERE { ?s ?p ?o ; 
-                        pd3:id """ + '"' + con_id + '"' + """ 
+                        pd3:id """ + '"' + con_id + '"' + """. 
                         FILTER(regex(str(?s),""" + '"' + node_uri + '"' + """))}
             """
             item_list = member_id_list + object_id_list
@@ -310,7 +310,7 @@ def delete_member(graph_name, ori_uri, node_uri, node_name, node_id, node_list, 
                         WITH """ + graph_name + """
                         DELETE { ?s pd3:attribution """ + "<" + con_subject + ">" + """ }
                         WHERE { ?s ?p ?o ; 
-                                pd3:id """ + '"' + item_id + '"' + """ 
+                                pd3:id """ + '"' + item_id + '"' + """. 
                                 FILTER(regex(str(?s),""" + '"' + node_uri + '"' + """))}
                     """
                     if fuseki.update(attr_query):
@@ -359,7 +359,7 @@ def change_child_uri_new(graph_name, ori_uri, uri, node_id, uri_node_list, \
     # 新uriを生成
     now = datetime.datetime.now()
     new_uri = "http://localhost/Container_delete_" + \
-        now.strftime("%Y%m%d_%H%M%S") + "/"
+        now.strftime("%Y%m%d_%H%M%S") + "_part2" + "/"
 
     update_data_list = data.get_node_rdf_info(graph_name, uri, id_list)
 
@@ -372,7 +372,7 @@ def change_child_uri_new(graph_name, ori_uri, uri, node_id, uri_node_list, \
         PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
         WITH """ + graph_name + """
         DELETE { """ + '<' + uri + update_node_id + '>' + """ ?property ?value } 
-        WHERE { """ + '<' + uri + update_node_id + '>' + """ ?property ?value; } 
+        WHERE { """ + '<' + uri + update_node_id + '>' + """ ?property ?value. } 
         """
         if(fuseki.update(delete_query)):
             continue
@@ -465,7 +465,7 @@ def change_child_uri(graph_name, uri, member_list, member_id_list, parent):
         PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
         WITH """ + graph_name + """
         DELETE { """ + '<' + uri + update_node_id + '>' + """ ?property ?value } 
-        WHERE { """ + '<' + uri + update_node_id + '>' + """ ?property ?value; } 
+        WHERE { """ + '<' + uri + update_node_id + '>' + """ ?property ?value. } 
         """
         if(fuseki.update(delete_query)):
             continue
@@ -591,7 +591,7 @@ def insert_con_member_new(graph_name, current_item, node_id, uri, \
         PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
         WITH """ + graph_name + """
         DELETE { ?s pd3:contraction ?o }
-        WHERE { ?s ?p ?o ; 
+        WHERE { ?s ?p ?o.
                 FILTER(?s = """ + '<' + container + '>' + """)}
     """
 
@@ -599,7 +599,7 @@ def insert_con_member_new(graph_name, current_item, node_id, uri, \
         PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
         WITH """ + graph_name + """
         DELETE { ?s pd3:output ?o }
-        WHERE { ?s ?p ?o ; 
+        WHERE { ?s ?p ?o.
                 FILTER(?s = """ + '<' + container + '>' + """)}
     """
 
@@ -661,7 +661,7 @@ def insert_con_member_new(graph_name, current_item, node_id, uri, \
                 DELETE { """ + "<" + uri+node_id + ">" + """ pd3:value """ + '"' + current_item + '"' + """ }
                 INSERT { """ + "<" + uri+node_id + ">" + """ pd3:value """ + '"' + value + '"' + """ }
                 WHERE {
-                """ + "<" + uri+node_id + ">" + """ pd3:value """ + '"' + current_item + '"' + """
+                """ + "<" + uri+node_id + ">" + """ pd3:value """ + '"' + current_item + '"' + """.
                 }
             """
             if fuseki.update(update_query):
@@ -796,7 +796,7 @@ def copy_ep_data(graph_name, uri, new_uri, parent):
         SELECT ?s ?p ?o
         WHERE {
             graph """ + graph_name + """ {
-            ?s ?p ?o
+            ?s ?p ?o.
             filter(regex(str(?s),""" + '"' + uri + '"' + """))
             }
         }
@@ -970,7 +970,7 @@ def delete_use(graph_name, uri, node_id, log_graph, log_uri, log_node_id):
         WITH """ + log_graph + """
         DELETE { ?s pd3:use """ + delete_use_data + """ }
         WHERE { ?s ?p ?o ; 
-                pd3:id """ + '"' + log_node_id + '"' + """ }
+                pd3:id """ + '"' + log_node_id + '"' + """. }
     """
 
     delete_useby_data = "<" + log_uri + log_node_id + ">"
@@ -979,7 +979,7 @@ def delete_use(graph_name, uri, node_id, log_graph, log_uri, log_node_id):
         WITH """ + graph_name + """
         DELETE { ?s pd3:useBy """ + delete_useby_data + """ }
         WHERE { ?s ?p ?o ; 
-                pd3:id """ + '"' + node_id + '"' + """ 
+                pd3:id """ + '"' + node_id + '"' + """. 
                 FILTER(regex(str(?s),""" + '"' + uri + '"' + """))}
     """
 
@@ -1019,7 +1019,7 @@ def delete_use(graph_name, uri, node_id, log_graph, log_uri, log_node_id):
                 PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
                 WITH """ + graph_name + """
                 DELETE { ?s pd3:useBy """ + '<' + log_uri + '>' + """ }
-                WHERE { ?s ?p ?o;
+                WHERE { ?s ?p ?o.
                         FILTER(regex(str(?s),""" + '"' + uri + '"' + """))}
             """
 

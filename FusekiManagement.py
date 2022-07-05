@@ -59,7 +59,7 @@ class FusekiManagement:
             select distinct ?graph
             where {
                     graph ?graph {
-                    ?s ?p ?o;
+                    ?s ?p ?o.
                     }
             }
         """
@@ -110,7 +110,7 @@ class FusekiManagement:
             CONSTRUCT { ?s ?p ?o}
             WHERE {
                 graph """ + graph + """ {
-                ?s ?p ?o;
+                ?s ?p ?o.
                 }
             }
         """
@@ -222,7 +222,7 @@ class FusekiManagement:
             CONSTRUCT {?subject ?predicate ?object}
             WHERE {
                     graph ?gen {
-                    ?subject ?predicate ?object
+                    ?subject ?predicate ?object.
                     }
             }
         """
