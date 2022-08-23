@@ -23,7 +23,7 @@ class DataManagement:
         self.fuseki = fm.FusekiManagement(setting.FUSEKI_URL, setting.FUSEKI_DB)
 
 
-    def get_graph_data_by_ttlfile(self, node_id_list, object_id_list, file_path):
+    def get_graph_data_by_ttlfile(self, gpm_uri, node_id_list, object_id_list, selected_edge_id, file_path):
         """ グラフデータを取得
 
         Args:
@@ -50,7 +50,7 @@ class DataManagement:
 
         for s, p, o in g.triples((None, RDF.type, None)):
             # Action
-            if(o == pd3.Action):
+            if(o == pd3.Action and gpm_uri in s):
                 for s1, p1, o1 in g.triples((s, pd3.id, None)):
                     id = str(o1)
                     if(id in node_id_list):
@@ -64,7 +64,7 @@ class DataManagement:
                             value = str(o4)
                             label_list[id] = value
             # Flow
-            elif(o == pd3.Flow):
+            elif(o == pd3.Flow and gpm_uri in s):
                 for s2, p2, o2 in g.triples((s, pd3.source, None)):
                     temp_source = o2
                     for s3, p3, o3 in g.triples((temp_source, pd3.id, None)):
@@ -73,11 +73,16 @@ class DataManagement:
                     temp_target = o2
                     for s3, p3, o3 in g.triples((temp_target, pd3.id, None)):
                         target = str(o3)
+                for s2, p2, o2 in g.triples((s, pd3.id, None)):
+                    edge_id = str(o2)
                 if(source in node_id_list) and (target in node_id_list):
-                    edge_list.append((source, target, {"color": "k"}))
+                    if(edge_id == selected_edge_id):
+                        edge_list.append((source, target, {"color": "r"}))
+                    else:
+                        edge_list.append((source, target, {"color": "k"}))
 
             # object
-            elif(o == pd3.Object):
+            elif(o == pd3.Object and gpm_uri in s):
                 for s1, p1, o1 in g.triples((s, pd3.id, None)):
                     id = str(o1)
                     if(id in object_id_list):
@@ -453,6 +458,52 @@ class DataManagement:
                     object_list["top"].append(value)
 
         return object_list, object_id_list
+
+
+    def get_top_level_edge_list(self, selected_graph_name, selected_uri):
+        """ 選択したプロセスに階層Top levelエッジを取得
+
+        Args:
+            selected_graph_name: グラフ名
+            uri: 指定uri
+
+        Returns:
+            edge_list: オブジェクトバリューリスト
+            edge_id_list: オブジェクトidリスト
+
+        """
+        # 最上層エッジを取得
+        query = """
+            PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
+            SELECT ?id ?value
+            WHERE {
+                graph """ + selected_graph_name + """ {
+                ?s ?p pd3:Action;
+                    pd3:output ?output.
+                FILTER NOT EXISTS {?s pd3:attribution ?parent}
+                FILTER(regex(str(?s),""" + '"' + selected_uri + '"' + """)) 
+                graph """ + selected_graph_name + """ {
+                    ?output pd3:value ?value;
+                    pd3:id ?id.
+                }
+            }
+        }
+        """
+
+        edge_id_list = {}
+        edge_id_list["top"] = []
+        edge_list = {}
+        edge_list["top"] = []
+
+        query_result = self.fuseki.get_fuseki_data_json(query)
+        if(len(query_result) > 0):
+            for result in query_result:
+                id = result["id"]["value"]
+                value = result["value"]["value"]
+                edge_id_list["top"].append(id)
+                edge_list["top"].append(value)
+
+        return edge_list, edge_id_list
 
 
     def get_node_info(self, graph_name, node_id):
@@ -947,6 +998,39 @@ class DataManagement:
                 FILTER(regex(str(?s),""" + '"' + uri + '"' + """)) 
                 }
             }
+        """
+
+        return self.fuseki.get_fuseki_data_json(query)
+
+
+    def get_container_edge_query(self, graph, container, uri):
+        """ コンテナにあるエッジ情報を取得
+
+        Args:
+            graph: グラフ名
+            container: コンテナ情報(主語)
+            uri: uri情報
+
+        Returns:
+            検索結果
+
+        """
+        query = """
+            PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
+            SELECT ?id ?value
+            WHERE {
+                graph """ + graph + """ {
+                ?s ?p pd3:Action;
+                    pd3:attribution ?parent;
+                    pd3:output ?output.
+                FILTER(?parent = <""" + container + """> )
+                FILTER(regex(str(?s),""" + '"' + uri + '"' + """)) 
+                graph """ + graph + """ {
+                    ?output pd3:value ?value;
+                    pd3:id ?id.
+                }
+            }
+        }
         """
 
         return self.fuseki.get_fuseki_data_json(query)
