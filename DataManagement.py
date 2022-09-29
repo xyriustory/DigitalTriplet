@@ -603,6 +603,62 @@ class DataManagement:
         return use, useby
 
 
+    def get_inputOutput_info(self, graph_name, node_uri, node_id):
+        """ ノードActionInput, ActionOutput情報を取得
+
+        Args:
+            graph_name: グラフ名
+            node_uri: ノードuri
+            node_id: ノードid
+
+        Returns:
+            actionInput: actionInput情報
+            actionOutput: actionOutput情報
+
+        """
+        actionInput = []
+        actionOutput = []
+
+        inputQuery = """
+            PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            select distinct ?s ?id ?input
+            where {
+                graph """ + graph_name + """ {
+                ?s pd3:id ?id;
+                pd3:actionInput ?input.
+                }
+                FILTER(?id = """ + '"' + node_id + '"' + """)
+            }
+        """
+
+        input_result = self.fuseki.get_fuseki_data_json(inputQuery)
+        if(len(input_result) > 0):
+            for result in input_result:
+                actionInput.append(result["input"]["value"])
+
+
+        outputQuery = """
+            PREFIX pd3: <http://DigitalTriplet.net/2021/08/ontology#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            select distinct ?s ?id ?output
+            where {
+                graph """ + graph_name + """ {
+                ?s pd3:id ?id;
+                pd3:actionOutput ?output.
+                }
+                FILTER(?id = """ + '"' + node_id + '"' + """)
+            }
+        """
+
+        output_result = self.fuseki.get_fuseki_data_json(outputQuery)
+        if(len(output_result) > 0):
+            for result in output_result:
+                actionOutput.append(result["output"]["value"])
+
+        return actionInput, actionOutput
+
+
     def get_node_subject_info(self, graph_name, node_id):
         """ Fusekiにノードの主語を取得
 
