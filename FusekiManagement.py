@@ -89,13 +89,11 @@ class FusekiManagement:
         """
         sparql = SPARQLWrapper(self.query_endpoint_url)
         sparql.setQuery(query)
-
-        sparql.setReturnFormat(TURTLE)
-        results = sparql.query().convert()
+        results = sparql.queryAndConvert()
 
         with open(file_path, "w", encoding="utf-8") as f:
             # bytes型をdecodeでstr型に変換する
-            f.write(results.decode())
+            f.write(results.serialize())
 
 
     def get_graph_ttlfile(self, graph, ttl_file):
