@@ -129,7 +129,6 @@ class FusekiManagement:
 
         sparql.setQuery(query)
         sparql.method = "POST"
-        sparql.query()
 
         query_results = sparql.query()
         result = query_results.response.read().decode()
