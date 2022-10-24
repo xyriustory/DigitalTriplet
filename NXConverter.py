@@ -1,3 +1,4 @@
+#from symbol import parameters
 import xml.etree.ElementTree as ET
 from rdflib import Graph, URIRef, Literal, BNode, Namespace
 from rdflib.namespace import RDF, RDFS, DCTERMS, XSD
@@ -49,6 +50,8 @@ def ttl_to_networkx(g_nx, ttlpath):
             actionType, value, id, layer, use, useby = None, None, None, None, None, None
             use = []
             useby = []
+            actionInput = []
+            actionOutput = []
             # 2022/3/7 mod End Man
             for s1, p1, o1 in g_ttl.triples((s, None, None)):
                 if(p1 == pd3.actionType):
@@ -62,9 +65,14 @@ def ttl_to_networkx(g_nx, ttlpath):
                 # 2022/3/7 mod Start Man
                 elif(p1 == pd3.use):
                     use.append(o1)
-                elif (p1 == pd3.useBy):
+                elif(p1 == pd3.useBy):
                     useby.append(o1)
                 # 2022/3/7 mod End Man
+                elif(p1 == pd3.actionInput):
+                    actionInput.append(o1)
+                elif(p1 == pd3.actionOutput):
+                    actionOutput.append(o1)
+
             g_nx.add_node(s)
             g_nx.nodes[s]["type"] = "Action"
             g_nx.nodes[s]["actionType"] = actionType
@@ -81,8 +89,17 @@ def ttl_to_networkx(g_nx, ttlpath):
                 g_nx.add_edge(s, useby[i])
             # 2022/3/7 mod End Man
 
+            # ActionInputとActionOuput関係処理
+            for node in actionInput:
+                g_nx.add_edge(s, node)
+                g_nx.edges[s, node]["type"] = "ActionInput"
+            for node in actionOutput:
+                g_nx.add_edge(s, node)
+                g_nx.edges[s, node]["type"] = "ActionOutput"
+
         # 2022/1/11 add Start Man
-        if(o == pd3.Object):
+        """
+        if(o == pd3.ObjectMOD):
             value, id, layer = None, None, None
             for s1, p1, o1 in g_ttl.triples((s, None, None)):
                 if(p1 == pd3.value):
@@ -97,6 +114,7 @@ def ttl_to_networkx(g_nx, ttlpath):
             g_nx.nodes[s]["layer"] = layer
             g_nx.nodes[s]["id"] = id
             # 2022/1/11 add End Man
+        """
 
         if(o == pd3.Container):
             # 2022/1/11 add Start Man
@@ -166,3 +184,71 @@ def ttl_to_networkx(g_nx, ttlpath):
                 g_nx.add_node(target)
                 g_nx.nodes[target][arcType] = value
             # 2022/1/11 mod End Man
+
+        if(o == pd3.parameter):
+            name, parent, value = None, None, None
+            relation = []
+            for s1, p1, o1 in g_ttl.triples((s, None, None)):
+                if(p1 == pd3.paramName):
+                    name = str(o1)
+                elif(p1 == pd3.paramOf):
+                    parent = o1
+                elif(p1 == pd3.paramValue):
+                    value = str(o1)
+                elif(p1 == pd3.satisfy):
+                    relation.append(o1)
+
+            g_nx.add_node(s)
+            g_nx.nodes[s]["paramName"] = name
+            g_nx.nodes[s]["paramValue"] = value
+
+            g_nx.add_edge(s, parent)
+            g_nx.edges[s, parent]["type"] = "paramOf"
+
+            for i in range(len(relation)):
+                g_nx.add_edge(s, relation[i])
+                g_nx.edges[s, relation[i]]["type"] = "satisfy"
+
+        if(o == pd3.Object):
+            parent, type, value = None, None, None
+            parameters = []
+            for s1, p1, o1 in g_ttl.triples((s, None, None)):
+                if(p1 == pd3.hasParameter):
+                    parameters.append(o1)
+                elif(p1 == pd3.partOf):
+                    parent = o1
+                elif(p1 == pd3.type):
+                    type = str(o1)
+                elif(p1 == pd3.value):
+                    value = str(o1)
+            
+            g_nx.add_node(s)
+            g_nx.nodes[s]["value"] = value
+           
+            if(parent is not None):
+                g_nx.add_edge(s, parent)
+                g_nx.nodes[s]["type"] = type
+                g_nx.edges[s, parent]["type"] = "partOf"
+
+            for node in parameters:
+                g_nx.add_edge(s, node)
+                g_nx.edges[s, node]["type"] = "hasParameter"
+
+        if(o == pd3.relation):
+            name = None
+            relationParam = []
+            for s1, p1, o1 in g_ttl.triples((s, None, None)):
+                if(p1 == pd3.relationName):
+                    name = str(o1)
+                elif(p1 == pd3.include):
+                    relationParam.append(o1)
+
+            g_nx.add_node(s)
+            g_nx.nodes[s]["value"] = name
+
+            for i in range(len(relationParam)):
+                g_nx.add_edge(s, relationParam[i])
+                g_nx.edges[s, relationParam[i]]["type"] = "include"
+
+
+
