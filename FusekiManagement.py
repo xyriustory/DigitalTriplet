@@ -1,14 +1,16 @@
 from tkinter import messagebox
-from SPARQLWrapper import SPARQLWrapper, JSON, TURTLE
+from SPARQLWrapper import SPARQLWrapper, JSON, TURTLE, BASIC
 from pyfuseki import FusekiUpdate
 from pyfuseki.utils import RdfUtils
 from rdflib import Graph, RDFS, URIRef, Namespace, RDF, Literal
 import datetime
 import networkx as nx
 import NXConverter
+import setting
 
 import importlib
 importlib.reload(NXConverter)
+importlib.reload(setting)
 
 """ Fuseki操作クラス
 
@@ -36,6 +38,8 @@ class FusekiManagement:
         """
         sparql = SPARQLWrapper(self.query_endpoint_url)
         sparql.setQuery(query)
+        sparql.setHTTPAuth(BASIC)
+        sparql.setCredentials(setting.FUSEKI_ID, setting.FUSEKI_PW)
 
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
@@ -89,6 +93,8 @@ class FusekiManagement:
         """
         sparql = SPARQLWrapper(self.query_endpoint_url)
         sparql.setQuery(query)
+        sparql.setHTTPAuth(BASIC)
+        sparql.setCredentials(setting.FUSEKI_ID, setting.FUSEKI_PW)
         results = sparql.queryAndConvert()
 
         with open(file_path, "w", encoding="utf-8") as f:
@@ -129,6 +135,8 @@ class FusekiManagement:
 
         sparql.setQuery(query)
         sparql.method = "POST"
+        sparql.setHTTPAuth(BASIC)
+        sparql.setCredentials(setting.FUSEKI_ID, setting.FUSEKI_PW)
 
         query_results = sparql.query()
         result = query_results.response.read().decode()
@@ -151,7 +159,12 @@ class FusekiManagement:
             インサート成功（True）か失敗（False）
 
         """
-        fuseki = FusekiUpdate(self.fuseki_url, self.dataset)
+        sparql = SPARQLWrapper(self.update_endpoint_url)
+
+        sparql.method = "POST"
+        sparql.setHTTPAuth(BASIC)
+        sparql.setCredentials(setting.FUSEKI_ID, setting.FUSEKI_PW)
+
         g = Graph()
 
         RdfUtils.add_list_to_graph(g, insert_data)
@@ -165,7 +178,9 @@ class FusekiManagement:
                         GRAPH """ + graph_name + "{" + spo_str + """} 
                     }
                     """
-        query_results = fuseki.run_sparql(fuseki_query)
+        sparql.setQuery(fuseki_query)
+
+        query_results = sparql.query()
 
         result = query_results.response.read().decode()
 
