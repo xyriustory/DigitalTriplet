@@ -1,0 +1,9 @@
+# 認証情報ファイル
+settings.ini
+
+# 実行中生成したファイル
+*.ttl
+*.graphml
+*.png
+
+__pycache__/
